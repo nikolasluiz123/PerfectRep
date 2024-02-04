@@ -1,5 +1,6 @@
-package br.com.perfectrep
+package br.com.perfectrep.utils
 
+import br.com.perfectrep.enums.EnumImageFileType
 import java.io.File
 import java.io.FileNotFoundException
 

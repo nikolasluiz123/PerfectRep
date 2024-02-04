@@ -1,4 +1,4 @@
-package br.com.perfectrep
+package br.com.perfectrep.enums
 
 enum class EnumFrameExtractorOptionKeys(val value: String) {
     INPUT_FILE_PATH("-i"),

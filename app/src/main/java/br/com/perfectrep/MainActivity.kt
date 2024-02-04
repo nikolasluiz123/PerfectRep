@@ -1,5 +1,6 @@
 package br.com.perfectrep
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -15,7 +16,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import br.com.perfectrep.enums.EnumImageFileType
+import br.com.perfectrep.extractor.FrameExtractor
+import br.com.perfectrep.extractor.FrameExtractorOptions
+import br.com.perfectrep.processor.ObjectDetectorProcessor
+import br.com.perfectrep.processor.PoseDetectorProcessor
+import br.com.perfectrep.processor.UriProcessor
 import br.com.perfectrep.ui.theme.PerfectrepTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -32,7 +40,7 @@ class MainActivity : ComponentActivity() {
                 val coroutineScope = rememberCoroutineScope()
                 val moviesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
                 val framesDirectory = File(moviesDirectory, "frames")
-                val video = File(moviesDirectory, "VID-20240202-WA0004.mp4")
+                val video = File(moviesDirectory, "supino_inclinado_halter_cortado.mp4")
 
                 if (!framesDirectory.exists()) {
                     framesDirectory.mkdir()
@@ -52,19 +60,19 @@ class MainActivity : ComponentActivity() {
 
                         val frameExtractor = FrameExtractor(extractorOptions)
 
+                        val poseProcessor = PoseDetectorProcessor()
+
                         frameExtractor.extractFrames {
                             val uriProcessor = UriProcessor(context = context, extractorOptions = extractorOptions)
 
-                            val objectDetectorProcessor = ObjectDetectorProcessor()
-
                             uriProcessor.processFramesAsync { inputImage, file ->
-                                objectDetectorProcessor.process(
+                                poseProcessor.process(
                                     inputImage = inputImage,
                                     onSuccess = {
-                                        Log.i("Teste", "Objeto detectado com sucesso")
+
                                     },
                                     onFailure = {
-                                        Log.e("Teste", "Houve um erro ao processar o InputImage para detectar os objetos.", it)
+                                        Log.e("Teste", "Houve um erro ao processar o InputImage para detectar a pose.", it)
                                     },
                                     onComplete = {
                                         Log.i("Teste", "Arquivo ${file.path} será deletado")
@@ -73,6 +81,49 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun DetectObjects(
+        coroutineScope: CoroutineScope,
+        video: File,
+        framesDirectory: File,
+        context: Context
+    ) {
+        LaunchedEffect(null) {
+            coroutineScope.launch {
+                val extractorOptions = FrameExtractorOptions(
+                    inputFilePath = video.absolutePath,
+                    outputDirectoryPath = framesDirectory.absolutePath,
+                    outputFileName = "temp_frame",
+                    outputFileFormat = EnumImageFileType.PNG
+                )
+
+                val frameExtractor = FrameExtractor(extractorOptions)
+
+                frameExtractor.extractFrames {
+                    val uriProcessor = UriProcessor(context = context, extractorOptions = extractorOptions)
+
+                    val objectDetectorProcessor = ObjectDetectorProcessor()
+
+                    uriProcessor.processFramesAsync { inputImage, file ->
+                        objectDetectorProcessor.process(
+                            inputImage = inputImage,
+                            onSuccess = {
+
+                            },
+                            onFailure = {
+                                Log.e("Teste", "Houve um erro ao processar o InputImage para detectar os objetos.", it)
+                            },
+                            onComplete = {
+                                Log.i("Teste", "Arquivo ${file.path} será deletado")
+                                file.delete()
+                            }
+                        )
                     }
                 }
             }

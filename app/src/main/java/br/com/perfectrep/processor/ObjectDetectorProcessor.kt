@@ -1,4 +1,4 @@
-package br.com.perfectrep
+package br.com.perfectrep.processor
 
 import android.util.Log
 import com.google.mlkit.vision.common.InputImage
@@ -20,6 +20,7 @@ class ObjectDetectorProcessor(private var options: ObjectDetectorOptions? = null
             options = ObjectDetectorOptions.Builder()
                 .setDetectorMode(ObjectDetectorOptions.STREAM_MODE)
                 .enableClassification()
+                .enableMultipleObjects()
                 .build()
         }
 
@@ -38,8 +39,19 @@ class ObjectDetectorProcessor(private var options: ObjectDetectorOptions? = null
     fun process(inputImage: InputImage, onSuccess: () -> Unit, onFailure: (Exception) -> Unit, onComplete: () -> Unit) {
         client.process(inputImage)
             .addOnSuccessListener { detectedObjects ->
-                Log.i("Objetos Detectados", "$detectedObjects")
-                onSuccess()
+                detectedObjects.forEach { detectedObject ->
+                    if (detectedObject.labels.isNotEmpty()) {
+                        Log.i("Detectado", "Tracking Id: ${detectedObject.trackingId}")
+
+                        detectedObject.labels.forEach { label ->
+                            Log.i("Detectado", "Label Text: ${label.text}")
+                            Log.i("Detectado", "Label Index: ${label.index}")
+                            Log.i("Detectado", "Label Confidence: ${label.confidence}")
+                        }
+                    }
+
+                    onSuccess()
+                }
             }
             .addOnFailureListener { e ->
                 Log.e("ERRO", "Houve um erro ao processar o InputImage para detectar os objetos.", e)

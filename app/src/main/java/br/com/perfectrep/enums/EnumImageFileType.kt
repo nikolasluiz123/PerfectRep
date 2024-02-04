@@ -1,4 +1,4 @@
-package br.com.perfectrep
+package br.com.perfectrep.enums
 
 /**
  * Enum com os tipos de arquivos de imagem.

@@ -1,10 +1,13 @@
-package br.com.perfectrep
+package br.com.perfectrep.processor
 
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
+import br.com.perfectrep.utils.FileUtils
+import br.com.perfectrep.enums.EnumImageFileType
+import br.com.perfectrep.extractor.FrameExtractorOptions
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext

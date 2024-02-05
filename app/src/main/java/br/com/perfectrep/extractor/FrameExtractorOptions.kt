@@ -1,6 +1,6 @@
 package br.com.perfectrep.extractor
 
-import br.com.perfectrep.enums.EnumImageFileType
+import br.com.perfectrep.extractor.enums.EnumImageFileType
 
 /**
  * Classe com os valores das configurações da extração de frames.

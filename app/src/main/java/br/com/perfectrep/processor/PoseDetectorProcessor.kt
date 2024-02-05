@@ -1,6 +1,5 @@
 package br.com.perfectrep.processor
 
-import android.util.Log
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetector
@@ -32,47 +31,25 @@ class PoseDetectorProcessor(private var options: PoseDetectorOptions? = null) {
      * com os dados da detecção tratados.
      *
      * @param inputImage Objeto que deverá ser processado.
+     * @param poseLandmarkTypes Lista dos landmarks que deseja. Obtido das constantes presentes em [PoseLandmark].
      * @param onSuccess Callback de sucesso.
      * @param onFailure Callback de erro.
      * @param onComplete Callback executado no sucesso ou falha.
      */
-    fun process(inputImage: InputImage, onSuccess: () -> Unit, onFailure: (Exception) -> Unit, onComplete: () -> Unit) {
+    fun process(
+        inputImage: InputImage,
+        poseLandmarkTypes: List<Int>,
+        onSuccess: (List<PoseLandmark>) -> Unit,
+        onFailure: (Exception) -> Unit,
+        onComplete: () -> Unit
+    ) {
         client.process(inputImage)
             .addOnSuccessListener { pose ->
-                val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)
-                val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)
+                val poseLandmarks = pose.allPoseLandmarks.filter { it.landmarkType in poseLandmarkTypes }.toList()
 
-                if (leftShoulder != null && rightShoulder != null) {
-                    Log.i("Left Shoulder", "landmarkType: ${leftShoulder.landmarkType}")
-                    Log.i("Left Shoulder", "position3D: ${leftShoulder.position3D}")
-
-                    Log.i("Right Shoulder", "landmarkType: ${rightShoulder.landmarkType}")
-                    Log.i("Right Shoulder", "position3D: ${rightShoulder.position3D}")
+                if (poseLandmarks.isNotEmpty()) {
+                    onSuccess(poseLandmarks)
                 }
-
-                val leftElbow = pose.getPoseLandmark(PoseLandmark.LEFT_ELBOW)
-                val rightElbow = pose.getPoseLandmark(PoseLandmark.RIGHT_ELBOW)
-
-                if (leftElbow != null && rightElbow != null) {
-                    Log.i("Left Elbow", "landmarkType: ${leftElbow.landmarkType}")
-                    Log.i("Left Elbow", "position3D: ${leftElbow.position3D}")
-
-                    Log.i("Right Elbow", "landmarkType: ${rightElbow.landmarkType}")
-                    Log.i("Right Elbow", "position3D: ${rightElbow.position3D}")
-                }
-
-                val leftWrist = pose.getPoseLandmark(PoseLandmark.LEFT_WRIST)
-                val rightWrist = pose.getPoseLandmark(PoseLandmark.RIGHT_WRIST)
-
-                if (leftWrist != null && rightWrist != null) {
-                    Log.i("Left Wrist", "landmarkType: ${leftWrist.landmarkType}")
-                    Log.i("Left Wrist", "position3D: ${leftWrist.position3D}")
-
-                    Log.i("Right Wrist", "landmarkType: ${rightWrist.landmarkType}")
-                    Log.i("Right Wrist", "position3D: ${rightWrist.position3D}")
-                }
-
-                onSuccess()
             }
             .addOnFailureListener {
                 onFailure(it)

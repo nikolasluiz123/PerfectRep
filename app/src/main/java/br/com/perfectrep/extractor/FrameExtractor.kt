@@ -2,7 +2,7 @@ package br.com.perfectrep.extractor
 
 import android.util.Log
 import br.com.perfectrep.utils.FileUtils
-import br.com.perfectrep.enums.EnumFrameExtractorOptionKeys
+import br.com.perfectrep.extractor.enums.EnumFrameExtractorOptionKeys
 import com.arthenica.mobileffmpeg.Config.RETURN_CODE_CANCEL
 import com.arthenica.mobileffmpeg.Config.RETURN_CODE_SUCCESS
 import com.arthenica.mobileffmpeg.FFmpeg

@@ -6,7 +6,7 @@ import android.util.Log
 import androidx.core.net.toFile
 import androidx.core.net.toUri
 import br.com.perfectrep.utils.FileUtils
-import br.com.perfectrep.enums.EnumImageFileType
+import br.com.perfectrep.extractor.enums.EnumImageFileType
 import br.com.perfectrep.extractor.FrameExtractorOptions
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.Dispatchers.IO

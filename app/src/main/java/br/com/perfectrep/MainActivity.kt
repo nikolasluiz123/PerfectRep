@@ -16,13 +16,15 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import br.com.perfectrep.enums.EnumImageFileType
+import br.com.perfectrep.extractor.enums.EnumImageFileType
 import br.com.perfectrep.extractor.FrameExtractor
 import br.com.perfectrep.extractor.FrameExtractorOptions
 import br.com.perfectrep.processor.ObjectDetectorProcessor
 import br.com.perfectrep.processor.PoseDetectorProcessor
 import br.com.perfectrep.processor.UriProcessor
 import br.com.perfectrep.ui.theme.PerfectrepTheme
+import br.com.perfectrep.validator.BenchPressValidator
+import com.google.mlkit.vision.pose.PoseLandmark
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -62,15 +64,26 @@ class MainActivity : ComponentActivity() {
 
                         val poseProcessor = PoseDetectorProcessor()
 
+                        // Coisas Relevantes para Validar um Supino.
+                        val landMarks = listOf(
+                            PoseLandmark.RIGHT_ELBOW,
+                            PoseLandmark.LEFT_ELBOW,
+                            PoseLandmark.RIGHT_SHOULDER,
+                            PoseLandmark.LEFT_SHOULDER,
+                            PoseLandmark.RIGHT_WRIST,
+                            PoseLandmark.LEFT_WRIST
+                        )
+
+                        val validator = BenchPressValidator()
+
                         frameExtractor.extractFrames {
                             val uriProcessor = UriProcessor(context = context, extractorOptions = extractorOptions)
 
                             uriProcessor.processFramesAsync { inputImage, file ->
                                 poseProcessor.process(
                                     inputImage = inputImage,
-                                    onSuccess = {
-
-                                    },
+                                    poseLandmarkTypes = landMarks,
+                                    onSuccess = validator::validate,
                                     onFailure = {
                                         Log.e("Teste", "Houve um erro ao processar o InputImage para detectar a pose.", it)
                                     },

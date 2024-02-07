@@ -1,66 +1,49 @@
 package br.com.perfectrep.validator
 
+import android.util.Log
 import com.google.mlkit.vision.pose.PoseLandmark
+import kotlin.math.abs
 import kotlin.math.acos
+import kotlin.math.atan2
 import kotlin.math.sqrt
 
-class BenchPressValidator: IExerciseValidator {
+class BenchPressValidator : IExerciseValidator {
 
     override fun validate(landmarks: List<PoseLandmark>): List<ValidationResult> {
-        val leftElbowAngle = calculateElbowAngle(
-            landmarks = landmarks,
-            elbowLandmark = PoseLandmark.LEFT_ELBOW,
-            shoulderLandmark = PoseLandmark.LEFT_SHOULDER,
-            wristLandmark = PoseLandmark.LEFT_WRIST
-        )
+        val left = landmarks.filter {
+            it.landmarkType == PoseLandmark.LEFT_ELBOW ||
+                    it.landmarkType == PoseLandmark.LEFT_SHOULDER ||
+                    it.landmarkType == PoseLandmark.LEFT_WRIST
+        }
 
-        val rightElbowAngle = calculateElbowAngle(
-            landmarks = landmarks,
-            elbowLandmark = PoseLandmark.RIGHT_ELBOW,
-            shoulderLandmark = PoseLandmark.RIGHT_SHOULDER,
-            wristLandmark = PoseLandmark.RIGHT_WRIST
-        )
+        val right = landmarks.filter {
+            it.landmarkType == PoseLandmark.RIGHT_ELBOW ||
+                    it.landmarkType == PoseLandmark.RIGHT_SHOULDER ||
+                    it.landmarkType == PoseLandmark.RIGHT_WRIST
+        }
+
+        Log.i("Teste", "Ângulo do Cotovelo Esquerdo: ${getAngle(left[0], left[1], left[2])}")
+        Log.i("Teste", "Ângulo do Cotovelo Direito: ${getAngle(right[0], right[1], right[2])}")
 
         return emptyList()
     }
 
-    private fun calculateElbowAngle(
-        landmarks: List<PoseLandmark>,
-        elbowLandmark: Int,
-        shoulderLandmark: Int,
-        wristLandmark: Int
-    ): Double {
-        val elbowAxis = getLandmarkAxis(landmarks = landmarks, landmarkType = elbowLandmark)
-        val shoulderAxis = getLandmarkAxis(landmarks = landmarks, landmarkType = shoulderLandmark)
-        val wristAxis = getLandmarkAxis(landmarks = landmarks, landmarkType = wristLandmark)
+    private fun getAngle(firstPoint: PoseLandmark, midPoint: PoseLandmark, lastPoint: PoseLandmark): Double {
+        var result = Math.toDegrees(
+            (atan2(
+                lastPoint.position.y - midPoint.position.y,
+                lastPoint.position.x - midPoint.position.x
+            ) - atan2(
+                firstPoint.position.y - midPoint.position.y,
+                firstPoint.position.x - midPoint.position.x
+            )).toDouble()
+        )
+        result = abs(result) // Angle should never be negative
 
-        val elbowShoulder = subtractVectors(elbowAxis, shoulderAxis)
-        val elbowWrist = subtractVectors(wristAxis, elbowAxis)
+        if (result > 180) {
+            result = 360.0 - result // Always get the acute representation of the angle
+        }
 
-        val dotProduct = dotProduct(elbowShoulder, elbowWrist)
-
-        val magnitudeElbowShoulder = vectorMagnitude(elbowShoulder)
-        val magnitudeElbowWrist = vectorMagnitude(elbowWrist)
-
-        val angleRadians = acos(dotProduct / (magnitudeElbowShoulder * magnitudeElbowWrist))
-
-        return Math.toDegrees(angleRadians)
-    }
-
-    private fun getLandmarkAxis(landmarks: List<PoseLandmark>, landmarkType: Int): DoubleArray {
-        val position = landmarks.find { it.landmarkType == landmarkType }!!.position3D
-        return doubleArrayOf(position.x.toDouble(), position.y.toDouble(), position.z.toDouble())
-    }
-
-    private fun subtractVectors(a: DoubleArray, b: DoubleArray): DoubleArray {
-        return DoubleArray(a.size) { index -> a[index] - b[index] }
-    }
-
-    private fun dotProduct(a: DoubleArray, b: DoubleArray): Double {
-        return (a.indices).sumOf { index -> a[index] * b[index] }
-    }
-
-    private fun vectorMagnitude(vector: DoubleArray): Double {
-        return sqrt(vector.sumOf { it * it })
+        return result
     }
 }

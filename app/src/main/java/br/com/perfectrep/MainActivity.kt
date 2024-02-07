@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
                 val coroutineScope = rememberCoroutineScope()
                 val moviesDirectory = context.getExternalFilesDir(Environment.DIRECTORY_MOVIES)
                 val framesDirectory = File(moviesDirectory, "frames")
-                val video = File(moviesDirectory, "supino_inclinado_halter_cortado.mp4")
+                val video = File(moviesDirectory, "supino_inclinado_halter_cortado_3.mp4")
 
                 if (!framesDirectory.exists()) {
                     framesDirectory.mkdir()

@@ -6,19 +6,20 @@ import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.atan2
 import kotlin.math.sqrt
+import kotlin.math.tan
 
 class BenchPressValidator : IExerciseValidator {
 
     override fun validate(landmarks: List<PoseLandmark>): List<ValidationResult> {
         val left = landmarks.filter {
-            it.landmarkType == PoseLandmark.LEFT_ELBOW ||
-                    it.landmarkType == PoseLandmark.LEFT_SHOULDER ||
+            it.landmarkType == PoseLandmark.LEFT_SHOULDER ||
+                    it.landmarkType == PoseLandmark.LEFT_ELBOW ||
                     it.landmarkType == PoseLandmark.LEFT_WRIST
         }
 
         val right = landmarks.filter {
-            it.landmarkType == PoseLandmark.RIGHT_ELBOW ||
-                    it.landmarkType == PoseLandmark.RIGHT_SHOULDER ||
+            it.landmarkType == PoseLandmark.RIGHT_SHOULDER ||
+                    it.landmarkType == PoseLandmark.RIGHT_ELBOW ||
                     it.landmarkType == PoseLandmark.RIGHT_WRIST
         }
 

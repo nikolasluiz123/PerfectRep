@@ -42,6 +42,11 @@ class FrameExtractor(private val options: FrameExtractorOptions) {
         }
     }
 
+    suspend fun extractFramesSync() = withContext(IO) {
+        val commands = getCommands()
+        FFmpeg.execute(commands)
+    }
+
     /**
      * Função que retorna um array contendo as especificações da
      * extração dos frames.
